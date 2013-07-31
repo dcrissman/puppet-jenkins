@@ -55,6 +55,7 @@ class jenkins(
   $repo        = 1,
   $config_hash = undef,
   $plugin_hash = undef,
+  $credentials = undef,
 ) {
 
   class {
@@ -74,13 +75,18 @@ class jenkins(
       plugin_hash => $plugin_hash,
   }
 
+  class { 'jenkins::credentials':
+      credentials => $credentials,
+  }
+
   include jenkins::service
   include jenkins::firewall
 
   Class['jenkins::repo'] ->
     Class['jenkins::package'] ->
-      Class['jenkins::config'] ~>
-        Class['jenkins::service']
+      Class['jenkins::config'] ->
+        Class['jenkins::credentials'] ~>
+          Class['jenkins::service']
 }
 
 # vim: ts=2 et sw=2 autoindent
